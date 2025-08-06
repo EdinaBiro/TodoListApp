@@ -34,4 +34,24 @@ export class StorageService {
       throw new Error("Failed to clear tasks");
     }
   }
+
+  static async addTask(task: Omit<Task, "id" | "createdAt">): Promise<Task> {
+    try {
+      const existingTask = await this.loadTasks();
+
+      const newTask: Task = {
+        ...task,
+        id: Date.now().toString(),
+        createdAt: new Date().toISOString(),
+      };
+
+      const updatedTask = [...existingTask, newTask];
+      await this.saveTasks(updatedTask);
+
+      return newTask;
+    } catch (error) {
+      console.error("Error loading task:", error);
+      throw new Error("Failed to add task");
+    }
+  }
 }
