@@ -12,12 +12,13 @@ import { StorageService } from "../services";
 import { COLORS } from "../utils";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { StatusBar } from "expo-status-bar";
-import { TaskList } from "../components";
+import { AddTaskModal, TaskList } from "../components";
 
 export const HomeScreen: React.FC = () => {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [isAddModalVisible, setIsAddModalVisible] = useState(false);
 
   const loadTasks = useCallback(async () => {
     try {
