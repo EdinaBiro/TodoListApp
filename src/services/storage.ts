@@ -54,4 +54,27 @@ export class StorageService {
       throw new Error("Failed to add task");
     }
   }
+
+  static async updateTask(
+    taskId: string,
+    updates: Partial<Omit<Task, "id" | "createdAt">>
+  ): Promise<Task | null> {
+    try {
+      const existingTasks = await this.loadTasks();
+      const taskIndex = existingTasks.findIndex((task) => task.id == taskId);
+
+      if (taskIndex == -1) {
+        return null;
+      }
+
+      const updatedTask = { ...existingTasks[taskIndex], ...updates };
+      existingTasks[taskIndex] = updatedTask;
+
+      await this.saveTasks(existingTasks);
+      return updatedTask;
+    } catch (error) {
+      console.error("Error updating task:", error);
+      throw new Error("Failed to update task");
+    }
+  }
 }
