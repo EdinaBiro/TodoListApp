@@ -1,6 +1,14 @@
-import { Alert, StyleSheet, View, Text } from "react-native";
+import {
+  Alert,
+  StyleSheet,
+  View,
+  Text,
+  TouchableOpacity,
+  Touchable,
+} from "react-native";
 import { Task } from "../types/Task";
 import { COLORS } from "../utils";
+import { Ionicons } from "@expo/vector-icons";
 
 interface TaskItemProps {
   task: Task;
@@ -31,6 +39,26 @@ export const TaskItem: React.FC<TaskItemProps> = ({
         <Text style={styles.date}>
           {new Date(task.createdAt).toLocaleDateString()}
         </Text>
+      </View>
+
+      <View style={styles.actions}>
+        <TouchableOpacity
+          style={[
+            styles.favoriteButton,
+            task.isFavorite && styles.favoriteButtonActive,
+          ]}
+          onPress={() => onToggleFavorite(task.id)}
+        >
+          <Ionicons
+            name={task.isFavorite ? "star" : "star-outline"}
+            size={24}
+            color={task.isFavorite ? COLORS.FAVORITE : COLORS.NOT_FAV}
+          />
+        </TouchableOpacity>
+
+        <TouchableOpacity style={styles.deleteButton} onPress={handleDelete}>
+          <Ionicons name="trash-outline" size={24} color="red" />
+        </TouchableOpacity>
       </View>
     </View>
   );

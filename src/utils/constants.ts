@@ -13,4 +13,6 @@ export const COLORS = {
   TEXT_PRIMARY: "#000000",
   TEXT_SECONDARY: "#8E8E93",
   BORDER: "#C6C6C8",
+  FAVORITE: "#FFD700",
+  NOT_FAV: "#999",
 } as const;
