@@ -25,4 +25,13 @@ export class StorageService {
       return [];
     }
   }
+
+  static async clearTasks(): Promise<void> {
+    try {
+      await AsyncStorage.removeItem(STORAGE_KEY.TASKS);
+    } catch (error) {
+      console.error("Error clearing tasks:", error);
+      throw new Error("Failed to clear tasks");
+    }
+  }
 }
