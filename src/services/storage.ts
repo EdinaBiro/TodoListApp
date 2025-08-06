@@ -12,4 +12,17 @@ export class StorageService {
       throw new Error("Failed to save tasks");
     }
   }
+
+  static async loadTasks(): Promise<Task[]> {
+    try {
+      const tasksJson = await AsyncStorage.getItem(STORAGE_KEY.TASKS);
+      if (tasksJson == null) {
+        return [];
+      }
+      return JSON.parse(tasksJson) as Task[];
+    } catch (error) {
+      console.error("Error loading tasks:", error);
+      return [];
+    }
+  }
 }
