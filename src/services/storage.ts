@@ -77,4 +77,20 @@ export class StorageService {
       throw new Error("Failed to update task");
     }
   }
+
+  static async deleteTask(taskId: string): Promise<boolean> {
+    try {
+      const existingTasks = await this.loadTasks();
+      const filteredTasks = existingTasks.filter((task) => task.id != taskId);
+
+      if (filteredTasks.length == existingTasks.length) {
+        return false;
+      }
+      await this.saveTasks(filteredTasks);
+      return true;
+    } catch (error) {
+      console.error("Error deleting task:", error);
+      throw new Error("Failed to delete task");
+    }
+  }
 }
