@@ -5,9 +5,8 @@ A modern todo application built with React Native and Expo. Manage your tasks ef
 ## 📱 Screenshots
 
 <p float="left">
-  <img src="./assets/screenshots/home.png" width="30%" />
-  <img src="./assets/screenshots/add-task.png" width="30%" />
-  <img src="./assets/screenshots/favorites.png" width="30%" />
+  <img src="./assets/screenshots/screen_1.jpeg" width="30%" />
+  <img src="./assets/screenshots/screen_2.jpeg" width="30%" />
 </p>
 
 ## ✨ Features
