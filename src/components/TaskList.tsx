@@ -29,7 +29,7 @@ export const TaskList: React.FC<TaskListProps> = ({
           source={require("../../assets/animations/Checklist.json")}
           autoPlay
           loop
-          style={{ width: 200, height: 200 }}
+          style={{ width: 300, height: 300 }}
         />
         <Text style={styles.emptyText}>No Tasks Yet</Text>
         <Text style={styles.emptyDescription}>
@@ -98,9 +98,10 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     paddingHorizontal: 32,
+    marginBottom: 80,
   },
   emptyText: {
-    fontSize: 64,
+    fontSize: 32,
     marginBottom: 16,
   },
   emptyDescription: {
