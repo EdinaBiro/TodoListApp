@@ -25,6 +25,9 @@ export const HomeScreen: React.FC = () => {
       const loadedTasks = await StorageService.loadTasks();
 
       const sortedTasks = loadedTasks.sort((a, b) => {
+        if (!a.isFavorite && b.isFavorite) return -1;
+        if (a.isFavorite && !b.isFavorite) return 1;
+
         if (a.isFavorite && !b.isFavorite) return -1;
         if (!a.isFavorite && b.isFavorite) return 1;
 
@@ -56,11 +59,14 @@ export const HomeScreen: React.FC = () => {
       const newTask = await StorageService.addTask({
         title,
         isFavorite: false,
+        completed: false,
       });
 
       setTasks((prevTasks) => {
         const updatedTasks = [newTask, ...prevTasks];
         return updatedTasks.sort((a, b) => {
+          if (!a.completed && b.completed) return -1;
+          if (a.completed && !b.completed) return 1;
           if (a.isFavorite && !b.isFavorite) return -1;
           if (!a.isFavorite && b.isFavorite) return 1;
           return (
@@ -90,6 +96,48 @@ export const HomeScreen: React.FC = () => {
           );
 
           return updatedTasks.sort((a, b) => {
+            if (!a.completed && b.completed) return -1;
+            if (a.completed && !b.completed) return 1;
+            if (a.isFavorite && !b.isFavorite) return -1;
+            if (!a.isFavorite && b.isFavorite) return 1;
+            return (
+              new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+            );
+          });
+        });
+      }
+    } catch (error) {
+      Alert.alert("Error", "Failed to update task");
+      console.error("Error updating task:", error);
+    }
+  };
+
+  const handleToggleComplete = async (taskId: string) => {
+    try {
+      const taskToUpdate = tasks.find((task) => task.id === taskId);
+      if (!taskToUpdate) return;
+
+      const updateData: Partial<Task> = {
+        completed: !taskToUpdate.completed,
+      };
+
+      if (!taskToUpdate.completed) {
+        updateData.completedAt = new Date().toISOString();
+      } else {
+        updateData.completedAt = undefined;
+      }
+
+      const updatedTask = await StorageService.updateTask(taskId, updateData);
+
+      if (updatedTask) {
+        setTasks((prevTasks) => {
+          const updatedTasks = prevTasks.map((task) =>
+            task.id === taskId ? updatedTask : task
+          );
+
+          return updatedTasks.sort((a, b) => {
+            if (!a.completed && b.completed) return -1;
+            if (a.completed && !b.completed) return 1;
             if (a.isFavorite && !b.isFavorite) return -1;
             if (!a.isFavorite && b.isFavorite) return 1;
             return (
@@ -120,6 +168,8 @@ export const HomeScreen: React.FC = () => {
 
   const favoriteCount = tasks.filter((task) => task.isFavorite).length;
   const totalCount = tasks.length;
+  const completedCount = tasks.filter((task) => task.completed).length;
+  const activeCount = totalCount - completedCount;
 
   return (
     <SafeAreaView style={styles.container}>
@@ -130,21 +180,39 @@ export const HomeScreen: React.FC = () => {
           <Text style={styles.subtitle}>
             {totalCount === 0
               ? "No tasks yet"
-              : `${totalCount} task${totalCount !== 1 ? "s" : ""}${
+              : `${activeCount} active${
+                  completedCount > 0 ? `, ${completedCount} completed` : ""
+                }${
                   favoriteCount > 0
-                    ? `, ${favoriteCount} favorite${
+                    ? ` • ${favoriteCount} favorite${
                         favoriteCount !== 1 ? "s" : ""
                       }`
                     : ""
                 }`}
           </Text>
         </View>
+        {totalCount > 0 && (
+          <View style={styles.progressContainer}>
+            <Text style={styles.progressText}>
+              {Math.round((completedCount / totalCount) * 100)}%
+            </Text>
+            <View style={styles.progressBar}>
+              <View
+                style={[
+                  styles.progressFill,
+                  { width: `${(completedCount / totalCount) * 100}%` },
+                ]}
+              />
+            </View>
+          </View>
+        )}
       </View>
 
       <View style={styles.content}>
         <TaskList
           tasks={tasks}
           onToggleFavorite={handleToggleFavorite}
+          onToggleComplete={handleToggleComplete}
           onDelete={handleDeleteTask}
         />
       </View>
@@ -223,5 +291,29 @@ const styles = StyleSheet.create({
     fontSize: 24,
     color: COLORS.CARD_BACKGROUND,
     fontWeight: "400",
+  },
+  progressContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginTop: 8,
+  },
+  progressText: {
+    fontSize: 14,
+    fontWeight: "600",
+    color: COLORS.SUCCESS,
+    marginRight: 12,
+    minWidth: 40,
+  },
+  progressBar: {
+    flex: 1,
+    height: 6,
+    backgroundColor: COLORS.BORDER,
+    borderRadius: 3,
+    overflow: "hidden",
+  },
+  progressFill: {
+    height: "100%",
+    backgroundColor: COLORS.SUCCESS,
+    borderRadius: 3,
   },
 });
