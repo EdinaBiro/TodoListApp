@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -25,8 +25,8 @@ export const HomeScreen: React.FC = () => {
       const loadedTasks = await StorageService.loadTasks();
 
       const sortedTasks = loadedTasks.sort((a, b) => {
-        if (!a.isFavorite && b.isFavorite) return -1;
-        if (a.isFavorite && !b.isFavorite) return 1;
+        if (!a.completed && b.completed) return -1;
+        if (a.completed && !b.completed) return 1;
 
         if (a.isFavorite && !b.isFavorite) return -1;
         if (!a.isFavorite && b.isFavorite) return 1;
@@ -82,7 +82,7 @@ export const HomeScreen: React.FC = () => {
 
   const handleToggleFavorite = async (taskId: string) => {
     try {
-      const taskToUpdate = tasks.find((task) => task.id == taskId);
+      const taskToUpdate = tasks.find((task) => task.id === taskId);
       if (!taskToUpdate) return;
 
       const updatedTask = await StorageService.updateTask(taskId, {
@@ -92,7 +92,7 @@ export const HomeScreen: React.FC = () => {
       if (updatedTask) {
         setTasks((prevTasks) => {
           const updatedTasks = prevTasks.map((task) =>
-            task.id == taskId ? updatedTask : task
+            task.id === taskId ? updatedTask : task
           );
 
           return updatedTasks.sort((a, b) => {
@@ -191,6 +191,7 @@ export const HomeScreen: React.FC = () => {
                 }`}
           </Text>
         </View>
+
         {totalCount > 0 && (
           <View style={styles.progressContainer}>
             <Text style={styles.progressText}>
@@ -240,7 +241,8 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.BACKGROUND,
   },
   header: {
-    paddingHorizontal: 16,
+    paddingHorizontal: 20,
+    paddingTop: 50,
     paddingVertical: 20,
     backgroundColor: COLORS.CARD_BACKGROUND,
     borderBottomWidth: 1,
@@ -255,7 +257,7 @@ const styles = StyleSheet.create({
     elevation: 3,
   },
   title: {
-    fontSize: 28,
+    fontSize: 26,
     fontWeight: "700",
     color: COLORS.TEXT_PRIMARY,
     marginBottom: 4,
@@ -264,33 +266,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: COLORS.TEXT_SECONDARY,
     fontWeight: "400",
-  },
-  content: {
-    flex: 1,
-  },
-  fab: {
-    position: "absolute",
-    right: 20,
-    bottom: 20,
-    width: 56,
-    height: 56,
-    borderRadius: 28,
-    backgroundColor: COLORS.PRIMARY,
-    justifyContent: "center",
-    alignItems: "center",
-    shadowColor: "#000",
-    shadowOffset: {
-      width: 0,
-      height: 4,
-    },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 8,
-  },
-  fabIcon: {
-    fontSize: 24,
-    color: COLORS.CARD_BACKGROUND,
-    fontWeight: "400",
+    marginBottom: 12,
   },
   progressContainer: {
     flexDirection: "row",
@@ -315,5 +291,33 @@ const styles = StyleSheet.create({
     height: "100%",
     backgroundColor: COLORS.SUCCESS,
     borderRadius: 3,
+  },
+  content: {
+    flex: 1,
+  },
+  fab: {
+    position: "absolute",
+    right: 20,
+    bottom: 80,
+    marginRight: 10,
+    width: 70,
+    height: 70,
+    borderRadius: 50,
+    backgroundColor: COLORS.PRIMARY,
+    justifyContent: "center",
+    alignItems: "center",
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 8,
+  },
+  fabIcon: {
+    fontSize: 24,
+    color: COLORS.CARD_BACKGROUND,
+    fontWeight: "400",
   },
 });

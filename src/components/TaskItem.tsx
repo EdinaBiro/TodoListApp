@@ -184,7 +184,6 @@ const styles = StyleSheet.create({
     marginRight: 8,
   },
   favoriteButtonActive: {
-    backgroundColor: COLORS.WARNING,
     borderRadius: 20,
   },
   favoriteIcon: {
