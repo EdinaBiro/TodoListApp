@@ -5,22 +5,62 @@ import {
   Text,
   TouchableOpacity,
   Touchable,
+  Animated,
 } from "react-native";
 import { Task } from "../types/Task";
 import { COLORS } from "../utils";
 import { Ionicons } from "@expo/vector-icons";
+import LottieView from "lottie-react-native";
+import { useEffect, useRef } from "react";
 
 interface TaskItemProps {
   task: Task;
   onToggleFavorite: (taskId: string) => void;
+  onToggleComplete: (taskId: string) => void;
   onDelete: (taskId: string) => void;
 }
 
 export const TaskItem: React.FC<TaskItemProps> = ({
   task,
   onToggleFavorite,
+  onToggleComplete,
   onDelete,
 }) => {
+  const animationRef = useRef<LottieView>(null);
+  const scaleAnim = useRef(new Animated.Value(1)).current;
+  const opacityAnim = useRef(new Animated.Value(1)).current;
+
+  useEffect(() => {
+    if (task.completed) {
+      animationRef.current?.play();
+
+      Animated.sequence([
+        Animated.timing(scaleAnim, {
+          toValue: 1.05,
+          duration: 200,
+          useNativeDriver: true,
+        }),
+        Animated.timing(scaleAnim, {
+          toValue: 1,
+          duration: 200,
+          useNativeDriver: true,
+        }),
+      ]).start();
+
+      Animated.timing(opacityAnim, {
+        toValue: 0.7,
+        duration: 300,
+        useNativeDriver: true,
+      }).start();
+    } else {
+      Animated.timing(opacityAnim, {
+        toValue: 1,
+        duration: 300,
+        useNativeDriver: true,
+      }).start();
+    }
+  }, [task.completed, scaleAnim, opacityAnim]);
+
   const handleDelete = () => {
     Alert.alert("Delete Task", "Are you sure you eant to delete this task?", [
       { text: "Cancel", style: "cancel" },
@@ -32,8 +72,48 @@ export const TaskItem: React.FC<TaskItemProps> = ({
     ]);
   };
 
+  const handleToggleComplete = () => {
+    onToggleComplete(task.id);
+  };
+
   return (
-    <View style={styles.container}>
+    <Animated.View
+      style={[
+        styles.container,
+        task.completed && styles.completedContainer,
+        {
+          transform: [{ scale: scaleAnim }],
+          opacity: opacityAnim,
+        },
+      ]}
+    >
+      {task.completed && (
+        <View style={styles.animationOverlay}>
+          <LottieView
+            ref={animationRef}
+            source={require("../../assets/animations/Done.json")}
+            style={styles.successAnimation}
+            loop={false}
+            autoPlay={false}
+          />
+        </View>
+      )}
+
+      <TouchableOpacity
+        style={[
+          styles.checkboxButton,
+          task.completed && styles.checkboxButtonCompleted,
+        ]}
+        onPress={handleToggleComplete}
+      >
+        <Ionicons
+          name={task.completed ? "checkmark" : "ellipse-outline"}
+          size={24}
+          color={
+            task.completed ? COLORS.CARD_BACKGROUND : COLORS.TEXT_SECONDARY
+          }
+        />
+      </TouchableOpacity>
       <View style={styles.content}>
         <Text style={styles.title}>{task.title}</Text>
         <Text style={styles.date}>
@@ -60,7 +140,7 @@ export const TaskItem: React.FC<TaskItemProps> = ({
           <Ionicons name="trash-outline" size={24} color="red" />
         </TouchableOpacity>
       </View>
-    </View>
+    </Animated.View>
   );
 };
 
@@ -119,5 +199,33 @@ const styles = StyleSheet.create({
   },
   deleteIcon: {
     fontSize: 18,
+  },
+  completedContainer: {
+    backgroundColor: "#F8F9FA",
+    borderLeftWidth: 4,
+    borderLeftColor: COLORS.SUCCESS,
+  },
+  animationOverlay: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    justifyContent: "center",
+    alignItems: "center",
+    zIndex: 10,
+    pointerEvents: "none",
+  },
+  successAnimation: {
+    width: 80,
+    height: 80,
+  },
+  checkboxButton: {
+    padding: 8,
+    marginRight: 12,
+    borderRadius: 20,
+  },
+  checkboxButtonCompleted: {
+    backgroundColor: COLORS.SUCCESS,
   },
 });
